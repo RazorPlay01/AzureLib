@@ -19,7 +19,7 @@ public class MarauderEntity extends Monster {
 
     public final MarauderAnimationDispatcher animationDispatcher;
 
-    private final MoveAnalysis moveAnalysis;
+    public final MoveAnalysis moveAnalysis;
 
     public MarauderEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -51,24 +51,7 @@ public class MarauderEntity extends Monster {
         super.tick();
         moveAnalysis.update();
 
-        if (this.level().isClientSide) {
-            var isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
-            Runnable animationRunner;
-
-            if (!this.isAlive()) {
-                animationRunner = animationDispatcher::death;
-//            } else if (this.tickCount < 300) {
-//                animationRunner = animationDispatcher::spawn;
-            } else if (isMovingOnGround) {
-                animationRunner = this.isAggressive()
-                    ? animationDispatcher::run
-                    : animationDispatcher::walk;
-            } else {
-                animationRunner = animationDispatcher::idle;
-            }
-
-            animationRunner.run();
-        } else {
+        if (!this.level().isClientSide) {
             if (this.getTarget() != null && this.isWithinMeleeAttackRange(this.getTarget())) {
                 if (this.getNavigation() instanceof AzureNavigation azureNavigation) {
                     azureNavigation.hardStop();
